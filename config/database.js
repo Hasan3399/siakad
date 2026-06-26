@@ -5,7 +5,7 @@ let pool;
 
 if (process.env.DATABASE_URL) {
   // Railway otomatis memberi DATABASE_URL
-  pool = mysql.createPool(process.env.DATABASE_URL + '?ssl={"rejectUnauthorized":false}');
+  pool = mysql.createPool(process.env.DATABASE_URL + ssl: 'Amazon RDS'');
 } else {
   pool = mysql.createPool({
     host: process.env.DB_HOST || 'localhost',
