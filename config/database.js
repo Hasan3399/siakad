@@ -4,8 +4,19 @@ require('dotenv').config();
 let pool;
 
 if (process.env.DATABASE_URL) {
-  // Railway otomatis memberi DATABASE_URL
-  pool = mysql.createPool(process.env.DATABASE_URL + '?ssl={"rejectUnauthorized":false}');
+  // Parse DATABASE_URL secara manual
+  const url = new URL(process.env.DATABASE_URL);
+  
+  pool = mysql.createPool({
+    host: url.hostname,
+    port: parseInt(url.port) || 3306,
+    user: url.username,
+    password: url.password,
+    database: url.pathname.slice(1), // Remove leading '/'
+    waitForConnections: true,
+    connectionLimit: 10,
+    ssl: 'Amazon RDS',
+  });
 } else {
   pool = mysql.createPool({
     host: process.env.DB_HOST || 'localhost',
@@ -19,3 +30,4 @@ if (process.env.DATABASE_URL) {
 }
 
 module.exports = pool;
+
