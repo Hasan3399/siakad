@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SIAKAD - Sistem Informasi Akademik</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<!-- ======== HALAMAN LOGIN ======== -->
+<div id="page-login" class="page">
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="logo-icon">🎓</div>
+        <h1>SIAKAD</h1>
+        <p>Sistem Informasi Akademik</p>
+      </div>
+      <form id="form-login">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="login-username" placeholder="Masukkan username" required />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="login-password" placeholder="Masukkan password" required />
+        </div>
+        <div id="login-error" class="alert alert-error" style="display:none"></div>
+        <button type="submit" class="btn btn-primary btn-full">Masuk</button>
+      </form>
+      <div class="login-hint">
+        <small>Demo: admin / admin123 &nbsp;|&nbsp; dosen1 / admin123 &nbsp;|&nbsp; mhs001 / admin123</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======== LAYOUT UTAMA ======== -->
+<div id="page-main" class="page" style="display:none">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-icon">🎓</div>
+      <span class="sidebar-title">SIAKAD</span>
+      <button class="sidebar-close" onclick="toggleSidebar()">✕</button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-page="dashboard">
+        <span class="nav-icon">📊</span> Dashboard
+      </a>
+      <a href="#" class="nav-item" data-page="mahasiswa">
+        <span class="nav-icon">👨‍🎓</span> Mahasiswa
+      </a>
+      <a href="#" class="nav-item" data-page="mata-kuliah">
+        <span class="nav-icon">📚</span> Mata Kuliah
+      </a>
+      <a href="#" class="nav-item" data-page="nilai">
+        <span class="nav-icon">📝</span> Nilai
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <span class="user-avatar">👤</span>
+        <div>
+          <div id="sidebar-nama" class="user-name">-</div>
+          <div id="sidebar-role" class="user-role">-</div>
+        </div>
+      </div>
+      <button class="btn btn-outline btn-small" onclick="logout()">Keluar</button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main-wrapper">
+    <!-- Topbar -->
+    <header class="topbar">
+      <button class="topbar-menu" onclick="toggleSidebar()">☰</button>
+      <h2 class="topbar-title" id="topbar-title">Dashboard</h2>
+    </header>
+
+    <!-- Content Area -->
+    <main class="content">
+
+      <!-- ===== DASHBOARD ===== -->
+      <div id="content-dashboard" class="content-section">
+        <div class="stats-grid">
+          <div class="stat-card stat-blue">
+            <div class="stat-icon">👨‍🎓</div>
+            <div class="stat-info">
+              <div class="stat-number" id="stat-mhs">-</div>
+              <div class="stat-label">Total Mahasiswa</div>
+            </div>
+          </div>
+          <div class="stat-card stat-green">
+            <div class="stat-icon">📚</div>
+            <div class="stat-info">
+              <div class="stat-number" id="stat-mk">-</div>
+              <div class="stat-label">Mata Kuliah</div>
+            </div>
+          </div>
+          <div class="stat-card stat-orange">
+            <div class="stat-icon">📝</div>
+            <div class="stat-info">
+              <div class="stat-number" id="stat-nilai">-</div>
+              <div class="stat-label">Total Nilai</div>
+            </div>
+          </div>
+          <div class="stat-card stat-purple">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-info">
+              <div class="stat-number" id="stat-rata">-</div>
+              <div class="stat-label">Rata-rata Nilai</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-charts">
+          <div class="chart-card">
+            <h3>Distribusi Nilai</h3>
+            <div id="chart-nilai" class="bar-chart"></div>
+          </div>
+          <div class="chart-card">
+            <h3>Mahasiswa per Jurusan</h3>
+            <div id="chart-jurusan" class="bar-chart"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== MAHASISWA ===== -->
+      <div id="content-mahasiswa" class="content-section" style="display:none">
+        <div class="section-toolbar">
+          <input type="search" id="search-mhs" placeholder="Cari nama / NIM..." class="search-input" oninput="filterMahasiswa()" />
+          <button class="btn btn-primary" onclick="openModal('modal-tambah-mhs')">+ Tambah Mahasiswa</button>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table" id="tabel-mhs">
+            <thead>
+              <tr><th>NIM</th><th>Nama</th><th>Jurusan</th><th>Angkatan</th><th>Status</th><th>Aksi</th></tr>
+            </thead>
+            <tbody id="tbody-mhs">
+              <tr><td colspan="6" class="loading">Memuat data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== MATA KULIAH ===== -->
+      <div id="content-mata-kuliah" class="content-section" style="display:none">
+        <div class="section-toolbar">
+          <input type="search" id="search-mk" placeholder="Cari mata kuliah..." class="search-input" oninput="filterMataKuliah()" />
+          <button class="btn btn-primary" onclick="openModal('modal-tambah-mk')">+ Tambah Mata Kuliah</button>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr><th>Kode</th><th>Nama MK</th><th>SKS</th><th>Semester</th><th>Dosen</th><th>Aksi</th></tr>
+            </thead>
+            <tbody id="tbody-mk">
+              <tr><td colspan="6" class="loading">Memuat data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== NILAI ===== -->
+      <div id="content-nilai" class="content-section" style="display:none">
+        <div class="section-toolbar">
+          <input type="search" id="search-nilai" placeholder="Cari mahasiswa / MK..." class="search-input" oninput="filterNilai()" />
+          <button class="btn btn-primary" onclick="openModal('modal-tambah-nilai')">+ Tambah Nilai</button>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr><th>NIM</th><th>Mahasiswa</th><th>Mata Kuliah</th><th>SKS</th><th>Semester</th><th>Nilai</th><th>Grade</th><th>Aksi</th></tr>
+            </thead>
+            <tbody id="tbody-nilai">
+              <tr><td colspan="8" class="loading">Memuat data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ======== MODAL MAHASISWA ======== -->
+<div id="modal-tambah-mhs" class="modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="modal-mhs-title">Tambah Mahasiswa</h3>
+      <button onclick="closeModal('modal-tambah-mhs')">✕</button>
+    </div>
+    <form id="form-mhs">
+      <input type="hidden" id="mhs-id" />
+      <div class="form-row">
+        <div class="form-group">
+          <label>NIM *</label>
+          <input type="text" id="mhs-nim" required />
+        </div>
+        <div class="form-group">
+          <label>Jenis Kelamin</label>
+          <select id="mhs-jk">
+            <option value="L">Laki-laki</option>
+            <option value="P">Perempuan</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Nama Lengkap *</label>
+        <input type="text" id="mhs-nama" required />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Jurusan</label>
+          <input type="text" id="mhs-jurusan" />
+        </div>
+        <div class="form-group">
+          <label>Angkatan</label>
+          <input type="number" id="mhs-angkatan" min="2000" max="2099" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="mhs-email" />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>No. HP</label>
+          <input type="text" id="mhs-hp" />
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="mhs-status">
+            <option value="aktif">Aktif</option>
+            <option value="cuti">Cuti</option>
+            <option value="lulus">Lulus</option>
+            <option value="keluar">Keluar</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Alamat</label>
+        <textarea id="mhs-alamat" rows="2"></textarea>
+      </div>
+      <div id="mhs-error" class="alert alert-error" style="display:none"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" onclick="closeModal('modal-tambah-mhs')">Batal</button>
+        <button type="submit" class="btn btn-primary">Simpan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ======== MODAL MATA KULIAH ======== -->
+<div id="modal-tambah-mk" class="modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="modal-mk-title">Tambah Mata Kuliah</h3>
+      <button onclick="closeModal('modal-tambah-mk')">✕</button>
+    </div>
+    <form id="form-mk">
+      <input type="hidden" id="mk-id" />
+      <div class="form-row">
+        <div class="form-group">
+          <label>Kode MK *</label>
+          <input type="text" id="mk-kode" required />
+        </div>
+        <div class="form-group">
+          <label>SKS *</label>
+          <input type="number" id="mk-sks" min="1" max="6" value="3" required />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Nama Mata Kuliah *</label>
+        <input type="text" id="mk-nama" required />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Semester</label>
+          <input type="number" id="mk-semester" min="1" max="8" />
+        </div>
+        <div class="form-group">
+          <label>Jurusan</label>
+          <input type="text" id="mk-jurusan" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Dosen Pengampu</label>
+        <input type="text" id="mk-dosen" />
+      </div>
+      <div id="mk-error" class="alert alert-error" style="display:none"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" onclick="closeModal('modal-tambah-mk')">Batal</button>
+        <button type="submit" class="btn btn-primary">Simpan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ======== MODAL NILAI ======== -->
+<div id="modal-tambah-nilai" class="modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="modal-nilai-title">Tambah Nilai</h3>
+      <button onclick="closeModal('modal-tambah-nilai')">✕</button>
+    </div>
+    <form id="form-nilai">
+      <input type="hidden" id="nilai-id" />
+      <div class="form-group">
+        <label>Mahasiswa *</label>
+        <select id="nilai-mhs" required>
+          <option value="">-- Pilih Mahasiswa --</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Mata Kuliah *</label>
+        <select id="nilai-mk" required>
+          <option value="">-- Pilih Mata Kuliah --</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Semester</label>
+          <select id="nilai-semester">
+            <option value="Ganjil">Ganjil</option>
+            <option value="Genap">Genap</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Tahun Ajaran</label>
+          <input type="text" id="nilai-tahun" placeholder="2023/2024" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Nilai Angka (0-100) *</label>
+        <input type="number" id="nilai-angka" min="0" max="100" required />
+      </div>
+      <div id="nilai-error" class="alert alert-error" style="display:none"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" onclick="closeModal('modal-tambah-nilai')">Batal</button>
+        <button type="submit" class="btn btn-primary">Simpan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Overlay -->
+<div id="overlay" class="overlay" onclick="closeAllModals()"></div>
+
+<div id="toast" class="toast"></div>
+
+<script src="/js/app.js"></script>
+</body>
+</html>
