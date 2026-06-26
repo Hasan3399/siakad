@@ -6,6 +6,7 @@ let pool;
 if (process.env.DATABASE_URL) {
   // Railway otomatis memberi DATABASE_URL
   pool = mysql.createPool(process.env.DATABASE_URL + ssl: 'Amazon RDS'');
+SyntaxError: missing ) after argument list
 } else {
   pool = mysql.createPool({
     host: process.env.DB_HOST || 'localhost',
